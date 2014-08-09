@@ -78,22 +78,10 @@ PKG_CHECK_MODULES([FRIBIDI], [fribidi], [AC_DEFINE(HAVE_FRIBIDI, 1, [whether Fri
 AC_SUBST(FRIBIDI_CFLAGS)
 AC_SUBST(FRIBIDI_LIBS)
 
-AC_CHECK_PROGS(FREETYPECONFIG, [freetype-config])
-if test -n "$FREETYPECONFIG"; then
-    FREETYPE_CPPFLAGS="`$FREETYPECONFIG --cflags`"
-    FREETYPE_LIBS="`$FREETYPECONFIG --libs`"
-    AC_DEFINE(HAVE_FREETYPE, 1, [Whether FreeType is available])
-
-    ac_save_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $FREETYPE_CPPFLAGS"
-    AC_CHECK_HEADERS(ft2build.h)
-    CPPFLAGS="$ac_save_CPPFLAGS"
-    AC_SUBST(FREETYPE_CPPFLAGS)
-    AC_SUBST(FREETYPE_LIBS)
-else
-    AC_MSG_ERROR([freetype not found])
-fi
-
+PKG_CHECK_MODULES([FREETYPE], [freetype2], [AC_DEFINE(HAVE_FREETYPE, 1, [Whether FreeType is available])], [:])
+AC_DEFINE(HAVE_FT2BUILD_H, 1, [Whether FreeType2 is available])
+AC_SUBST(FREETYPE_CPPFLAGS)
+AC_SUBST(FREETYPE_LIBS)
 
 AC_ARG_ENABLE([default-video-format],
 AS_HELP_STRING([--enable-default-video-format=format], [specify a default video format, either NTSC or PAL, to be used if no configuration or input setting is given]),
@@ -129,10 +117,9 @@ dnl AM_LANGINFO_CODESET
 
 AM_ICONV
 
-ifdef([AM_PATH_XML2],
-    [AM_PATH_XML2(2.6.0, , AC_MSG_ERROR([You must have libxml2 >= 2.6.0 installed]))],
-    [errprint([You must have libxml2 (>= 2.6.0) installed
-])m4_exit(1)AC_MSG_ERROR([You must have libxml2 (>= 2.6.0) installed])])
+PKG_CHECK_MODULES([PKG_XML2], [libxml-2.0])
+AC_SUBST(PKG_XML2_CFLAGS)
+AC_SUBST(PKG_XML2_LIBS)
 
 AC_CHECK_DECLS(O_BINARY, , , [ #include <fcntl.h> ] )
 
